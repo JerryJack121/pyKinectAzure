@@ -17,7 +17,7 @@ class pyKinectAzure:
 			if platform.system().lower() == 'linux':
 				modulePath = r'/usr/lib/x86_64-linux-gnu/libk4a.so'
 			else:
-				modulePath = 'C:\\Program Files\\Azure Kinect SDK v1.4.0\\sdk\\windows-desktop\\amd64\\release\\bin\\k4a.dll'
+				modulePath = 'C:\\Program Files\\Azure Kinect SDK v1.4.1\\sdk\\windows-desktop\\amd64\\release\\bin\\k4a.dll'
 		self.modulePath = modulePath
 		_k4a.k4a.setup_library(modulePath)
 		self.k4a = _k4a.k4a()
