@@ -9,6 +9,7 @@ import cv2
 
 # Path to the module
 # TODO: Modify with the path containing the k4a.dll from the Azure Kinect SDK
+# 修改路徑
 modulePath = 'C:\\Program Files\\Azure Kinect SDK v1.4.1\\sdk\\windows-desktop\\amd64\\release\\bin\\k4a.dll' 
 bodyTrackingModulePath = 'C:\\Program Files\\Azure Kinect Body Tracking SDK\\sdk\\windows-desktop\\amd64\\release\\bin\\k4abt.dll'
 # under x86_64 linux please use r'/usr/lib/x86_64-linux-gnu/libk4a.so'
@@ -50,6 +51,7 @@ if __name__ == "__main__":
 			pyK4A.bodyTracker_update()
 
 			# Read and convert the image data to numpy array:
+			# 將深度圖像轉換為RGB三通道，用於可視化
 			depth_image = pyK4A.image_convert_to_numpy(depth_image_handle)
 			depth_color_image = cv2.convertScaleAbs (depth_image, alpha=0.05)  #alpha is fitted by visual comparison with Azure k4aviewer results 
 			depth_color_image = cv2.cvtColor(depth_color_image, cv2.COLOR_GRAY2RGB) 
@@ -57,12 +59,15 @@ if __name__ == "__main__":
 			# Get body segmentation image
 			body_image_color = pyK4A.bodyTracker_get_body_segmentation()
 
+			# 按比例重疊深度圖像與人體區塊圖像
 			combined_image = cv2.addWeighted(depth_color_image, 0.8, body_image_color, 0.2, 0)
 
 			# Draw the skeleton
-			for body in pyK4A.body_tracker.bodiesNow:
+			for body in pyK4A.body_tracker.bodiesNow:	# 遍覽畫面中出現的目標
 				skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
 				combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, combined_image)
+				skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)	# 3維關節座標
+				print(skeleton3D[0].v[2])
 
 			# Overlay body segmentation on depth image
 			cv2.imshow('Segmented Depth Image',combined_image)

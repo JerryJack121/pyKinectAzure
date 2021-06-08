@@ -90,6 +90,29 @@ class pyKinectAzure:
 					
 		return skeleton2D
 
+	# 取得3維空間中關節座標
+	def bodyTracker_3Dskeleton(self, skeleton, dest_camera=None):
+		if dest_camera is None:
+			dest_camera = _k4a.K4A_CALIBRATION_TYPE_DEPTH
+
+		# # Project using the calibration of the camera for the image
+		position_3d = _k4a.k4a_float3_t()
+		valid = ctypes.c_int()
+		skeleton3D = {}
+		for jointID,joint in enumerate(skeleton.joints):
+			_k4a.VERIFY(self.k4a.k4a_calibration_3d_to_3d(
+										self.body_tracker.sensor_calibration, 
+										joint.position, 
+										_k4a.K4A_CALIBRATION_TYPE_DEPTH, 
+										dest_camera, 
+										position_3d,
+										valid),
+										"Project skeleton failed")
+
+			skeleton3D[jointID] = position_3d
+					
+		return skeleton3D
+
 	def device_get_installed_count(self):
 		"""Gets the number of connected devices
 
