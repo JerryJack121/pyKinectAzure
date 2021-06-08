@@ -64,10 +64,10 @@ if __name__ == "__main__":
 
 			# Draw the skeleton
 			for body in pyK4A.body_tracker.bodiesNow:	# 遍覽畫面中出現的目標
+				print(body.skeleton.joints[3].position.xyz.x)
 				# skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
 				# combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, combined_image)
 				skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)	# 3維關節座標(尚未成功)
-				print(skeleton3D[0].v[1])
 				combined_image = pyK4A.body_tracker.draw2DSkeleton_with_depth(skeleton3D, body.id, combined_image)
 
 			# Overlay body segmentation on depth image

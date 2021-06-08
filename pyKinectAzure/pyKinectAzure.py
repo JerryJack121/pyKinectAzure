@@ -90,17 +90,17 @@ class pyKinectAzure:
 					
 		return skeleton2D
 
-	# 取得3維空間中關節座標
+	# 取得3維空間中關節座標(尚未成功)
 	def bodyTracker_3Dskeleton(self, skeleton, dest_camera=None):
 		if dest_camera is None:
 			dest_camera = _k4a.K4A_CALIBRATION_TYPE_DEPTH
 
 		# # Project using the calibration of the camera for the image
-		position_3d = _k4a.k4a_float3_t()
+		position_3d = _k4a.k4a_float2_t()
 		valid = ctypes.c_int()
 		skeleton3D = {}
 		for jointID, joint in enumerate(skeleton.joints):
-			_k4a.VERIFY(self.k4a.k4a_calibration_3d_to_3d(
+			_k4a.VERIFY(self.k4a.k4a_calibration_3d_to_2d(
 										self.body_tracker.sensor_calibration, 
 										joint.position, 
 										_k4a.K4A_CALIBRATION_TYPE_DEPTH, 
@@ -108,8 +108,7 @@ class pyKinectAzure:
 										position_3d,
 										valid),
 										"Project skeleton failed")
-
-			skeleton3D[jointID] = position_3d
+			skeleton3D[jointID] = (position_3d.xy.x, position_3d.xy.y)	
 					
 		return skeleton3D
 
