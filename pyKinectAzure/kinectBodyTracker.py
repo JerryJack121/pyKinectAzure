@@ -84,6 +84,23 @@ class kinectBodyTracker:
 
 		return image
 
+	def draw2DSkeleton_with_depth(self, skeleton3D, bodyId, image):
+		color = _k4abt.body_colors
+		for jointID, position_3d in skeleton3D.items():
+			print(position_3d.v[0])
+			image = cv2.circle(image, (int(position_3d.v[0]), int(position_3d.v[1])), 3, (255,0,0), 3)
+
+		# 畫線連接各關節
+		# for segmentId in range(len(_k4abt.K4ABT_SEGMENT_PAIRS)):
+		# 	point1 = skeleton3D[_k4abt.K4ABT_SEGMENT_PAIRS[segmentId][0]].position.v
+		# 	point2 = skeleton3D[_k4abt.K4ABT_SEGMENT_PAIRS[segmentId][1]].position.v
+		# 	image = cv2.line(
+        #         image, (int(point1[0]), int(point1[1])), (int(point2[0]), int(point2[1])),
+        #         (255,0,0), 2
+        #     )
+
+		return image
+
 	def initializeTracker(self):
 		"""Initialize the body tracker
 
