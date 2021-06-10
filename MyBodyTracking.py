@@ -67,10 +67,14 @@ if __name__ == "__main__":
 			for body in pyK4A.body_tracker.bodiesNow:	# 遍覽畫面中出現的目標
 				skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
 				combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, combined_image)
-				skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)	# 取得3維關節座標
+				# 取得3維關節座標
+				skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)	
+
 				util = Util(skeleton2D, skeleton3D, combined_image)
-				util.show_coordinate_on_2Dimage()	# 顯示3維關節座標在輸出影像上
-				util.show_angel_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	# 顯示關節角度在輸出影像上
+				# 顯示3維關節座標在輸出影像上
+				util.show_coordinate_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	
+				# 顯示關節角度在輸出影像上
+				util.show_angel_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	
 
 				combined_image = util.combined_image
 
