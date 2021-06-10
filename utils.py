@@ -1,5 +1,6 @@
 import numpy as np
 
+# 計算關節角度
 def get_joint_angel(skeleton3D):
 
     # 計算3維向量夾角
@@ -17,5 +18,11 @@ def get_joint_angel(skeleton3D):
     skeleton = {'SHOULDER_LEFT':skeleton3D[5], 'ELBOW_LEFT':skeleton3D[6], 'WRIST_LEFT':skeleton3D[7]}
     # 計算關節角度
     angel = calculate_angle(skeleton['SHOULDER_LEFT'], skeleton['ELBOW_LEFT'], skeleton['WRIST_LEFT'])
+    angel = round(angel, 1) # 四捨五入
 
     return angel
+
+# 將關節角度顯示在輸出影像
+def show_angel_on_2Dimage(skeleton2D, joint_angel, combined_image):
+    coordinate = {'ELBOW_LEFT':skeleton2D.joints2D[6].position}
+    return combined_image
