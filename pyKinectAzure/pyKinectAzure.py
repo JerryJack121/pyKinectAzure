@@ -104,6 +104,24 @@ class pyKinectAzure:
 		skeleton3D = {}
 		for jointID, joint in enumerate(skeleton.joints):
 			skeleton3D[jointID] = 	Joint(joint.position.xyz.x, joint.position.xyz.y, joint.position.xyz.z)
+
+		# 測試用
+		# Project using the calibration of the camera for the image
+		# position_2d = _k4a.k4a_float2_t()
+		# valid = ctypes.c_int()
+		# skeleton2D = _k4abt.k4abt_skeleton2D_t()
+		# skeleton3D = {}
+		# for jointID, joint in enumerate(skeleton.joints):
+		# 	_k4a.VERIFY(self.k4a.k4a_calibration_3d_to_2d(
+		# 								self.body_tracker.sensor_calibration, 
+		# 								joint.position, 
+		# 								_k4a.K4A_CALIBRATION_TYPE_DEPTH, 
+		# 								dest_camera, 
+		# 								position_2d,
+		# 								valid),
+		# 								"Project skeleton failed")
+
+		# 	skeleton3D[jointID] = Joint(position_2d.xy.x, position_2d.xy.y, 0)
 					
 		return skeleton3D
 
