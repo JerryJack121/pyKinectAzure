@@ -6,7 +6,7 @@ from pyKinectAzure.pyKinectAzure import pyKinectAzure, _k4a
 from kinectBodyTracker import kinectBodyTracker, _k4abt
 import cv2
 
-from utils import get_joint_angel, show_angel_on_2Dimage, show_coordinate_on_2Dimage
+from utils import Util
 
 # Path to the module
 # TODO: Modify with the path containing the k4a.dll from the Azure Kinect SDK
@@ -68,10 +68,11 @@ if __name__ == "__main__":
 				skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
 				combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, combined_image)
 				skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)	# 取得3維關節座標
-				show_coordinate_on_2Dimage(skeleton2D, skeleton3D, combined_image)	# 顯示3維關節座標在輸出影像上
-				joint_angel = get_joint_angel(skeleton3D)	# 根據3維座標計算關節角度
-				combined_image = show_angel_on_2Dimage(skeleton2D, joint_angel, combined_image)	# 顯示關節角度在輸出影像上
-				
+				util = Util(skeleton2D, skeleton3D, combined_image)
+				util.show_coordinate_on_2Dimage()	# 顯示3維關節座標在輸出影像上
+				util.show_angel_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	# 顯示關節角度在輸出影像上
+
+				combined_image = util.combined_image
 
 			# Overlay body segmentation on depth image
 			cv2.imshow('Segmented Depth Image',combined_image)
