@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, '../pyKinectAzure/')
+sys.path.insert(1, 'pyKinectAzure/')
 
 import numpy as np
 from pyKinectAzure import pyKinectAzure, _k4a
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 	pyK4A.device_start_cameras(device_config)
 
 	# Start recording
-	pyK4A.start_recording("test.mkv")
+	pyK4A.start_recording("./record/test.mkv")
 
 	k = 0
 	while True:

@@ -72,9 +72,9 @@ if __name__ == "__main__":
 
 				util = Util(skeleton2D, skeleton3D, combined_image)
 				# 顯示3維關節座標在輸出影像上
-				util.show_coordinate_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	
+				util.show_coordinate_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
 				# 顯示關節角度在輸出影像上
-				util.show_angel_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	
+				util.show_angel_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
 
 				combined_image = util.combined_image
 
