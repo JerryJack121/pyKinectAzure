@@ -60,8 +60,13 @@ class load_record:
 		self.k4arecord.k4a_playback_open(filepath.encode('utf-8'), self.playback_handle)
 	
 	def get_capture(self):
-		_k4arecord.VERIFY(self.k4arecord.k4a_playback_get_next_capture(self.playback_handle, self.capture_handle), "Get capture failed!")
-		return self.capture_handle
+		try:
+			_k4arecord.VERIFY(self.k4arecord.k4a_playback_get_next_capture(self.playback_handle, self.capture_handle), "Get capture failed!")
+			return self.capture_handle
+		except:
+			return None
+
+		
 		
 	def capture_get_depth_image(self):
 		return(self.k4a.k4a_capture_get_depth_image(self.capture_handle))

@@ -35,15 +35,9 @@ if __name__ == "__main__":
 	pyK4A.record_bodyTracker_start(bodyTrackingModulePath, recorder.playback_get_calibration())
 
 	while True:
+		pyK4A.capture_handle = recorder.get_capture()
 		# 確認是否還有下一幀
-		try:
-			pyK4A.capture_handle = recorder.get_capture()
-			next_frame = True
-		except:
-			next_frame = False
-			break
-
-		if next_frame:
+		if pyK4A.capture_handle:
 			# Get the depth image from the capture
 			depth_image_handle = recorder.capture_get_depth_image()
 
@@ -74,3 +68,5 @@ if __name__ == "__main__":
 
 				if k==27:    # Esc key to stop
 					break
+		else:
+			break
