@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-
+import time
 
 
 class Util:
@@ -20,6 +20,8 @@ class Util:
         self.side = side    # 左半身/右半身(若有分的話)
         self.stage = None   # 運動狀態
         self.counter = 0    # 運動完成次數
+
+        self.game_start_time = None
 
     def update(self, skeleton2D, skeleton3D):
 
@@ -92,6 +94,26 @@ class Util:
         # cv2.putText(self.combined_image, 'Angel:{:.2f}'.format(angel), (self.width-180,30), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 1, cv2.LINE_AA)  
         # 顯示完成次數
         cv2.putText(self.combined_image, '{} {}'.format(self.counter, self.stage), (self.width-180,65), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 1, cv2.LINE_AA)  
+
+    # 偵測到人後倒數3秒鐘開始計時
+    def game(self):
+
+        game_start = False
+        if self.game_start_time == None:
+            self.game_start_time = time.time()
+
+        if (time.time() - self.game_start_time) <= 3:
+            text = str(int(4 - (time.time() - self.game_start_time)))
+            cv2.putText(self.combined_image, text, (int(self.width/2), int(self.height/2)), cv2.FONT_HERSHEY_COMPLEX, 1.5, (0, 0, 255), 1, cv2.LINE_AA)  
+        elif (time.time() - self.game_start_time) <= 4:
+            text = 'Go!'
+            cv2.putText(self.combined_image, text, (int(self.width/2), int(self.height/2)), cv2.FONT_HERSHEY_COMPLEX, 1.5, (0, 0, 255), 1, cv2.LINE_AA)  
+        else:
+            game_start = True
+            self.game_start_time = time.time()
+            
+        return game_start
+
 
 
 # 計算3維向量夾角

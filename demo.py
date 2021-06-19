@@ -18,7 +18,14 @@ bodyTrackingModulePath = 'C:\\Program Files\\Azure Kinect Body Tracking SDK\\sdk
 # under x86_64 linux please use r'/usr/lib/x86_64-linux-gnu/libk4a.so'
 # In Jetson please use r'/usr/lib/aarch64-linux-gnu/libk4a.so'
 
+# 自訂參數
 mode = 'camera'
+exercise_mode = 'Lift_Dumbbells'	# exercise_mode(None, Lift_Dumbbells, Stand_Sit)
+side = 'Left'	# 只有在當運動有分左右半身時有效 side(None, Lift, Right)
+
+# 系統參數
+k = 0
+game_start = False
 
 if __name__ == "__main__":
 
@@ -58,13 +65,12 @@ if __name__ == "__main__":
 		pyK4A.record_bodyTracker_start(bodyTrackingModulePath, recorder.playback_get_calibration())
 
 
-	k = 0
 	# 初始化工具
-	util = Util(width, height, exercise_mode = 'Lift_Dumbbells', side = 'Left')		# exercise_mode(Lift_Dumbbells, Stand_Sit)
+	util = Util(width, height, exercise_mode, side)		
 
 	while True:
 		# Start time
-		start = time.time()
+		frame_start = time.time()
 
 		if mode == 'camera':
 
@@ -103,27 +109,36 @@ if __name__ == "__main__":
 			# 按比例重疊深度圖像與人體區塊圖像
 			util.combined_image = cv2.addWeighted(depth_color_image, 0.8, body_image_color, 0.2, 0)
 
-			# Draw the skeleton
-			for body in pyK4A.body_tracker.bodiesNow:	# 遍覽畫面中出現的目標
-				skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
-				util.combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, util.combined_image)
-				# 取得3維關節座標
-				skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)	
+			cv2.putText(util.combined_image, exercise_mode, (int(util.width/2)-70, 30), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 1, cv2.LINE_AA)
 
-				util.update(skeleton2D, skeleton3D)
 
-				# 顯示3維關節座標在輸出影像上
-				# util.show_coordinate_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
-				# 計算關節角度並輸出在影像上
-				# angel = util.show_angel_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
-				# 計算動作完成次數
-				util.cal_exercise()
+			# 偵測到人後倒數3秒鐘開始計時
+			if not game_start:
+				if len(pyK4A.body_tracker.bodiesNow) != 0:					
+					game_start = util.game()
+
+			if  game_start:
+				# Draw the skeleton
+				for body in pyK4A.body_tracker.bodiesNow:	# 遍覽畫面中出現的目標
+					skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
+					util.combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, util.combined_image)
+					# 取得3維關節座標
+					skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)	
+
+					util.update(skeleton2D, skeleton3D)
+
+					# 顯示3維關節座標在輸出影像上
+					# util.show_coordinate_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
+					# 計算關節角度並輸出在影像上
+					# angel = util.show_angel_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
+					# 計算動作完成次數
+					util.cal_exercise()
 
 
 			# End time
-			end = time.time()
+			frame_end = time.time()
 			# Show FPS
-			cv2.putText(util.combined_image, 'FPS:{:.1f}'.format(1/(end-start)), (15, 40), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
+			cv2.putText(util.combined_image, 'FPS:{:.1f}'.format(1/(frame_end-frame_start)), (15, 40), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 1, cv2.LINE_AA)
 
 			# Overlay body segmentation on depth image
 			cv2.imshow('Segmented Depth Image', util.combined_image)
