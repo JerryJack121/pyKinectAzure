@@ -26,6 +26,7 @@ side = 'Left'	# 只有在當運動有分左右半身時有效 side(None, Lift, R
 # 系統參數
 k = 0
 game_start = False
+game_stop = False
 
 if __name__ == "__main__":
 
@@ -109,7 +110,7 @@ if __name__ == "__main__":
 			# 按比例重疊深度圖像與人體區塊圖像
 			util.combined_image = cv2.addWeighted(depth_color_image, 0.8, body_image_color, 0.2, 0)
 
-			# cv2.putText(util.combined_image, exercise_mode, (int(util.width/2)-70, 40), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 1, cv2.LINE_AA)
+			# 顯示運動名稱
 			util.put_text_in_center((util.width/2, 30), exercise_mode, 0.7, (0, 255, 0), 1)
 
 
@@ -124,16 +125,13 @@ if __name__ == "__main__":
 					skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
 					util.combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, util.combined_image)
 					# 取得3維關節座標
-					skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)	
-
+					skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)						
+					# 更新骨架資訊
 					util.update(skeleton2D, skeleton3D)
-
-					# 顯示3維關節座標在輸出影像上
-					# util.show_coordinate_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
-					# 計算關節角度並輸出在影像上
-					# angel = util.show_angel_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
 					# 計算動作完成次數
-					util.cal_exercise()
+					game_stop = util.cal_exercise()
+					if game_stop:
+						util.put_text_in_center((int(util.width/2), int(util.height/2)), 'Time\'s up!', 1.5, (0, 0, 255), 2)
 
 
 			# Frame end time

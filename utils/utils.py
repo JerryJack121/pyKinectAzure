@@ -23,7 +23,7 @@ class Util:
         self.counter = 0    # 運動完成次數
 
         self.game_start_time = None # 遊戲開始時間
-        self.game_time = datetime.timedelta(seconds=30)   # 遊戲持續時間
+        self.game_time = datetime.timedelta(seconds=5)   # 遊戲持續時間
 
     def update(self, skeleton2D, skeleton3D):
 
@@ -55,9 +55,12 @@ class Util:
 
         return angel
 
+
+
     # 計算動作完成次數
     def cal_exercise(self):
 
+        game_stop = False
         if datetime.datetime.now() <= self.game_end_time:
 
             left_time =  (self.game_end_time - datetime.datetime.now())
@@ -94,14 +97,17 @@ class Util:
                     self.counter += 1
         else:
             left_time = datetime.timedelta(seconds=0)
-
-
+            game_stop = True
 
         # 文字底圖
         cv2.rectangle(self.combined_image, (self.width-200, 0), (self.width, 80), (245, 117, 16), -1)
         cv2.putText(self.combined_image, 'Time: {}s'.format(left_time.seconds), (self.width-180,30), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 1, cv2.LINE_AA)  
         # 顯示完成次數
         cv2.putText(self.combined_image, '{} {}'.format(self.counter, self.stage), (self.width-180,65), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 1, cv2.LINE_AA)  
+
+        return game_stop
+
+
 
     # 偵測到人後倒數3秒鐘進入遊戲
     def game_ready(self):
@@ -127,6 +133,8 @@ class Util:
 
         return game_start
 
+
+
     # 文字置中
     def put_text_in_center(self, center, TEXT, TEXT_SCALE, TEXT_BGR, TEXT_THICKNESS):   
 
@@ -135,7 +143,6 @@ class Util:
         cv2.putText(self.combined_image, TEXT, (int(center[0] - text_size[0]/2), int(center[1] + text_size[1]/2)), TEXT_FACE, TEXT_SCALE, TEXT_BGR, TEXT_THICKNESS, cv2.LINE_AA)  
 
             
-
 
 
 # 計算3維向量夾角
