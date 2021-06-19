@@ -1,6 +1,6 @@
 import _k4a
 import _k4arecord
-import record
+import record_tool
 from kinectBodyTracker import kinectBodyTracker, _k4abt
 import numpy as np
 import cv2
@@ -44,6 +44,10 @@ class pyKinectAzure:
 		depthSensorCalibration = _k4a.k4a_calibration_t()
 		self.getDepthSensorCalibration(depthSensorCalibration)
 
+		# Initialize the body tracker
+		self.body_tracker = kinectBodyTracker(bodyTrackerModulePath,  depthSensorCalibration, modelType)
+
+	def record_bodyTracker_start(self, bodyTrackerModulePath, depthSensorCalibration, modelType = _k4abt.K4ABT_DEFAULT_MODEL):
 		# Initialize the body tracker
 		self.body_tracker = kinectBodyTracker(bodyTrackerModulePath,  depthSensorCalibration, modelType)
 
@@ -695,7 +699,7 @@ class pyKinectAzure:
 		return imu_results
 
 	def start_recording(self, filepath="output.mkv"):
-		self.record = record.record(self.modulePath, self.device_handle, self.config.current_config, filepath)
+		self.record = record_tool.record(self.modulePath, self.device_handle, self.config.current_config, filepath)
 		self.recording = True
 
 	def stop_recording(self):
