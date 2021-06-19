@@ -61,6 +61,9 @@ class load_record:
 	def playback_open(self, filepath):
 		self.k4arecord.k4a_playback_open(filepath.encode('utf-8'), self.playback_handle)
 	
+	def	playback_close(self):
+		self.k4arecord.k4a_playback_close(self.playback_handle)
+	
 	def get_capture(self):
 
 			result = self.k4arecord.k4a_playback_get_next_capture(self.playback_handle, self.capture_handle)

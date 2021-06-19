@@ -7,7 +7,7 @@ from kinectBodyTracker import kinectBodyTracker, _k4abt
 import cv2
 import time
 
-from utils import Util
+from utils.utils import Util
 
 # Path to the module
 # TODO: Modify with the path containing the k4a.dll from the Azure Kinect SDK
