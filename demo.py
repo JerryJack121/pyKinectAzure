@@ -43,8 +43,11 @@ if __name__ == "__main__":
 		pyK4A.bodyTracker_start(bodyTrackingModulePath)
 
 	elif mode == 'record':
+
+		file_PATH = './record/test01.mkv'
+
 		# Open record
-		recorder.playback_open('./record/test01.mkv')
+		recorder.playback_open(file_PATH)
 
 		# Initialize the body tracker
 		pyK4A.record_bodyTracker_start(bodyTrackingModulePath, recorder.playback_get_calibration())
@@ -112,14 +115,14 @@ if __name__ == "__main__":
 
 				combined_image = util.combined_image
 
+			# End time
+			end = time.time()
+			# Show FPS
+			cv2.putText(combined_image, 'FPS:{:.1f}'.format(1/(end-start)), (15, 40), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
+
 			# Overlay body segmentation on depth image
 			cv2.imshow('Segmented Depth Image',combined_image)
 			k = cv2.waitKey(1)
-
-			# End time
-			end = time.time()
-			# FPS
-			print('FPS:{:.1f}'.format(1/(end-start)))
 
 			# Release the image
 			pyK4A.image_release(depth_image_handle)
