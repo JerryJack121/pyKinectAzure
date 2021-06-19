@@ -18,13 +18,14 @@ bodyTrackingModulePath = 'C:\\Program Files\\Azure Kinect Body Tracking SDK\\sdk
 # under x86_64 linux please use r'/usr/lib/x86_64-linux-gnu/libk4a.so'
 # In Jetson please use r'/usr/lib/aarch64-linux-gnu/libk4a.so'
 
-mode = 'record'
+mode = 'camera'
 
 if __name__ == "__main__":
 
 	# Initialize the library with the path containing the module
 	pyK4A = pyKinectAzure(modulePath)
 	recorder = record_tool.load_record(modulePath)
+	
 
 	if mode == 'camera':
 		# Open device
@@ -35,6 +36,9 @@ if __name__ == "__main__":
 		device_config.color_resolution = _k4a.K4A_COLOR_RESOLUTION_OFF
 		device_config.depth_mode = _k4a.K4A_DEPTH_MODE_NFOV_UNBINNED
 		print(device_config)
+
+		# 初始化工具
+		util = Util(640, 576)
 
 		# Start cameras using modified configuration
 		pyK4A.device_start_cameras(device_config)
@@ -48,6 +52,9 @@ if __name__ == "__main__":
 
 		# Open record
 		recorder.playback_open(file_PATH)
+
+		# 初始化工具
+		util = Util(512, 512)
 
 		# Initialize the body tracker
 		pyK4A.record_bodyTracker_start(bodyTrackingModulePath, recorder.playback_get_calibration())
@@ -94,34 +101,32 @@ if __name__ == "__main__":
 			body_image_color = pyK4A.bodyTracker_get_body_segmentation()
 
 			# 按比例重疊深度圖像與人體區塊圖像
-			combined_image = cv2.addWeighted(depth_color_image, 0.8, body_image_color, 0.2, 0)
+			util.combined_image = cv2.addWeighted(depth_color_image, 0.8, body_image_color, 0.2, 0)
 
 			# Draw the skeleton
 			for body in pyK4A.body_tracker.bodiesNow:	# 遍覽畫面中出現的目標
 				skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
-				combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, combined_image)
+				util.combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, util.combined_image)
 				# 取得3維關節座標
 				skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)	
 
-				util = Util(skeleton2D, skeleton3D, combined_image)
+				util.update(skeleton2D, skeleton3D)
+
 				# 顯示3維關節座標在輸出影像上
 				# util.show_coordinate_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
 				# 顯示關節角度在輸出影像上
 				util.show_angel_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
-				# 顯示3維關節座標在輸出影像上
-				# util.show_coordinate_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	
-				# 顯示關節角度在輸出影像上
-				util.show_angel_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	
+				# 計算動作完成次數
+				util.cal_exercise('Lift_Dumbbells')
 
-				combined_image = util.combined_image
 
 			# End time
 			end = time.time()
 			# Show FPS
-			cv2.putText(combined_image, 'FPS:{:.1f}'.format(1/(end-start)), (15, 40), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
+			cv2.putText(util.combined_image, 'FPS:{:.1f}'.format(1/(end-start)), (15, 40), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
 
 			# Overlay body segmentation on depth image
-			cv2.imshow('Segmented Depth Image',combined_image)
+			cv2.imshow('Segmented Depth Image',util.combined_image)
 			k = cv2.waitKey(1)
 
 			# Release the image
