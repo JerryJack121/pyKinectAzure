@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import time
+import datetime
 
 
 class Util:
@@ -21,7 +22,8 @@ class Util:
         self.stage = None   # 運動狀態
         self.counter = 0    # 運動完成次數
 
-        self.game_start_time = None
+        self.game_start_time = None # 遊戲開始時間
+        self.game_time = datetime.timedelta(seconds=30)   # 遊戲持續時間
 
     def update(self, skeleton2D, skeleton3D):
 
@@ -56,63 +58,83 @@ class Util:
     # 計算動作完成次數
     def cal_exercise(self):
 
-        if self.exercise_mode == 'Lift_Dumbbells':
+        if datetime.datetime.now() <= self.game_end_time:
+
+            left_time =  (self.game_end_time - datetime.datetime.now())
+
+            if self.exercise_mode == 'Lift_Dumbbells':
+
+                if self.side == 'Right':
+                    abc_joint = ['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT']
+                elif self.side == 'Left':
+                    abc_joint = ['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT']
+                
+                # 計算關節角度並輸出在影像上
+                angel = self.show_angel_on_2Dimage(abc_joint)
+
+                if angel >= 110:
+                    self.stage = 'Down'
+                if angel <= 70 and self.stage == 'Down':
+                    self.stage = 'Up'
+                    self.counter += 1
             
-            if self.side == 'Right':
-                abc_joint = ['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT']
-            elif self.side == 'Left':
-                abc_joint = ['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT']
-            
-            # 計算關節角度並輸出在影像上
-            angel = self.show_angel_on_2Dimage(abc_joint)
+            elif self.exercise_mode == 'Stand_Sit':
 
-            if angel >= 110:
-                self.stage = 'Down'
-            if angel <= 70 and self.stage == 'Down':
-                self.stage = 'Up'
-                self.counter += 1
-        
-        elif self.exercise_mode == 'Stand_Sit':
+                abc_joint1  = ['HIP_LEFT', 'KNEE_LEFT', 'ANKLE_LEFT']
+                abc_joint2  = ['HIP_RIGHT', 'KNEE_RIGHT', 'ANKLE_RIGHT']
 
-            abc_joint1  = ['HIP_LEFT', 'KNEE_LEFT', 'ANKLE_LEFT']
-            abc_joint2  = ['HIP_RIGHT', 'KNEE_RIGHT', 'ANKLE_RIGHT']
+                # 計算關節角度並輸出在影像上
+                angel1 = self.show_angel_on_2Dimage(abc_joint1)
+                angel2 = self.show_angel_on_2Dimage(abc_joint2)
 
-            # 計算關節角度並輸出在影像上
-            angel1 = self.show_angel_on_2Dimage(abc_joint1)
-            angel2 = self.show_angel_on_2Dimage(abc_joint2)
+                if angel1 <= 100 and angel2 <= 100:
+                    self.stage = 'Sit'
+                if angel1 >= 140 and angel2 >= 140 and self.stage == 'Sit':
+                    self.stage = 'Stand'
+                    self.counter += 1
+        else:
+            left_time = datetime.timedelta(seconds=0)
 
-            if angel1 <= 100 and angel2 <= 100:
-                self.stage = 'Sit'
-            if angel1 >= 140 and angel2 >= 140 and self.stage == 'Sit':
-                self.stage = 'Stand'
-                self.counter += 1
 
 
         # 文字底圖
         cv2.rectangle(self.combined_image, (self.width-200, 0), (self.width, 80), (245, 117, 16), -1)
-        # # 顯示關節角度
-        # cv2.putText(self.combined_image, 'Angel:{:.2f}'.format(angel), (self.width-180,30), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 1, cv2.LINE_AA)  
+        cv2.putText(self.combined_image, 'Time: {}s'.format(left_time.seconds), (self.width-180,30), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 1, cv2.LINE_AA)  
         # 顯示完成次數
         cv2.putText(self.combined_image, '{} {}'.format(self.counter, self.stage), (self.width-180,65), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 1, cv2.LINE_AA)  
 
-    # 偵測到人後倒數3秒鐘開始計時
-    def game(self):
+    # 偵測到人後倒數3秒鐘進入遊戲
+    def game_ready(self):
 
         game_start = False
         if self.game_start_time == None:
             self.game_start_time = time.time()
 
+        center = (int(self.width/2), int(self.height/2))
+        cv2.circle(self.combined_image, center, 50, (0, 255, 0), -1)
         if (time.time() - self.game_start_time) <= 3:
             text = str(int(4 - (time.time() - self.game_start_time)))
-            cv2.putText(self.combined_image, text, (int(self.width/2), int(self.height/2)), cv2.FONT_HERSHEY_COMPLEX, 1.5, (0, 0, 255), 1, cv2.LINE_AA)  
+            self.put_text_in_center(center, text, 1.5, (0, 0, 255), 2)        
+
         elif (time.time() - self.game_start_time) <= 4:
             text = 'Go!'
-            cv2.putText(self.combined_image, text, (int(self.width/2), int(self.height/2)), cv2.FONT_HERSHEY_COMPLEX, 1.5, (0, 0, 255), 1, cv2.LINE_AA)  
+            self.put_text_in_center(center, text, 1.5, (0, 0, 255), 2)
+
         else:
             game_start = True
-            self.game_start_time = time.time()
-            
+            self.game_start_time = datetime.datetime.now()
+            self.game_end_time = self.game_start_time + self.game_time
+
         return game_start
+
+    # 文字置中
+    def put_text_in_center(self, center, TEXT, TEXT_SCALE, TEXT_BGR, TEXT_THICKNESS):   
+
+        TEXT_FACE = cv2.FONT_HERSHEY_COMPLEX
+        text_size, _ = cv2.getTextSize(TEXT, TEXT_FACE, TEXT_SCALE, TEXT_THICKNESS)
+        cv2.putText(self.combined_image, TEXT, (int(center[0] - text_size[0]/2), int(center[1] + text_size[1]/2)), TEXT_FACE, TEXT_SCALE, TEXT_BGR, TEXT_THICKNESS, cv2.LINE_AA)  
+
+            
 
 
 

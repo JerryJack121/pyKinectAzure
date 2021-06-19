@@ -69,7 +69,7 @@ if __name__ == "__main__":
 	util = Util(width, height, exercise_mode, side)		
 
 	while True:
-		# Start time
+		# Frame start time
 		frame_start = time.time()
 
 		if mode == 'camera':
@@ -109,13 +109,14 @@ if __name__ == "__main__":
 			# 按比例重疊深度圖像與人體區塊圖像
 			util.combined_image = cv2.addWeighted(depth_color_image, 0.8, body_image_color, 0.2, 0)
 
-			cv2.putText(util.combined_image, exercise_mode, (int(util.width/2)-70, 30), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 1, cv2.LINE_AA)
+			# cv2.putText(util.combined_image, exercise_mode, (int(util.width/2)-70, 40), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 1, cv2.LINE_AA)
+			util.put_text_in_center((util.width/2, 30), exercise_mode, 0.7, (0, 255, 0), 1)
 
 
-			# 偵測到人後倒數3秒鐘開始計時
+			# 偵測到人後倒數3秒鐘進入遊戲
 			if not game_start:
 				if len(pyK4A.body_tracker.bodiesNow) != 0:					
-					game_start = util.game()
+					game_start = util.game_ready()
 
 			if  game_start:
 				# Draw the skeleton
@@ -135,7 +136,7 @@ if __name__ == "__main__":
 					util.cal_exercise()
 
 
-			# End time
+			# Frame end time
 			frame_end = time.time()
 			# Show FPS
 			cv2.putText(util.combined_image, 'FPS:{:.1f}'.format(1/(frame_end-frame_start)), (15, 40), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 1, cv2.LINE_AA)
