@@ -19,7 +19,7 @@ bodyTrackingModulePath = 'C:\\Program Files\\Azure Kinect Body Tracking SDK\\sdk
 # In Jetson please use r'/usr/lib/aarch64-linux-gnu/libk4a.so'
 
 # 自訂參數
-mode = 'camera'
+mode = 'Camera'	# mode(Camera, Record)
 exercise_mode = 'Lift_Dumbbells'	# exercise_mode(None, Lift_Dumbbells, Stand_Sit)
 side = 'Left'	# 只有在當運動有分左右半身時有效 side(None, Lift, Right)
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 	recorder = record_tool.load_record(modulePath)
 	
 
-	if mode == 'camera':
+	if mode == 'Camera':
 		# Open device
 		pyK4A.device_open()
 
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 		# Initialize the body tracker
 		pyK4A.bodyTracker_start(bodyTrackingModulePath)
 
-	elif mode == 'record':
+	elif mode == 'Record':
 
 		file_PATH = './record/test01.mkv'
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 		# Frame start time
 		frame_start = time.time()
 
-		if mode == 'camera':
+		if mode == 'Camera':
 
 			# Get capture
 			pyK4A.device_get_capture()
@@ -81,7 +81,7 @@ if __name__ == "__main__":
 			# Get the depth image from the capture
 			depth_image_handle = pyK4A.capture_get_depth_image()
 
-		elif mode == 'record':
+		elif mode == 'Record':
 
 			# Get capture
 			pyK4A.capture_handle = recorder.get_capture()

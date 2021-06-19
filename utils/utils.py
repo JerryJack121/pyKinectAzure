@@ -23,7 +23,7 @@ class Util:
         self.counter = 0    # 運動完成次數
 
         self.game_start_time = None # 遊戲開始時間
-        self.game_time = datetime.timedelta(seconds=5)   # 遊戲持續時間
+        self.game_time = datetime.timedelta(seconds=30)   # 遊戲持續時間
 
     def update(self, skeleton2D, skeleton3D):
 
