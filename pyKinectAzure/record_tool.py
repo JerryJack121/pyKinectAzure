@@ -1,5 +1,7 @@
 import _k4arecord
 import _k4a
+from _k4arecordTypes import *
+from _k4atypes import *
 import numpy as np
 
 class record:
@@ -60,11 +62,12 @@ class load_record:
 		self.k4arecord.k4a_playback_open(filepath.encode('utf-8'), self.playback_handle)
 	
 	def get_capture(self):
-		try:
-			_k4arecord.VERIFY(self.k4arecord.k4a_playback_get_next_capture(self.playback_handle, self.capture_handle), "Get capture failed!")
-			return self.capture_handle
-		except:
-			return None
+
+			result = self.k4arecord.k4a_playback_get_next_capture(self.playback_handle, self.capture_handle)
+			if result == K4A_RESULT_SUCCEEDED:
+				return self.capture_handle
+			else:
+				return None
 
 		
 		
