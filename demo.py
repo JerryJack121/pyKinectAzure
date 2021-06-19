@@ -37,8 +37,7 @@ if __name__ == "__main__":
 		device_config.depth_mode = _k4a.K4A_DEPTH_MODE_NFOV_UNBINNED
 		print(device_config)
 
-		# 初始化工具
-		util = Util(640, 576)
+		width, height = 640, 576
 
 		# Start cameras using modified configuration
 		pyK4A.device_start_cameras(device_config)
@@ -53,14 +52,16 @@ if __name__ == "__main__":
 		# Open record
 		recorder.playback_open(file_PATH)
 
-		# 初始化工具
-		util = Util(512, 512)
+		width, height = 512, 512
 
 		# Initialize the body tracker
 		pyK4A.record_bodyTracker_start(bodyTrackingModulePath, recorder.playback_get_calibration())
 
 
 	k = 0
+	# 初始化工具
+	util = Util(width, height, exercise_mode = 'Lift_Dumbbells', side = 'Left')		# exercise_mode(Lift_Dumbbells, Stand_Sit)
+
 	while True:
 		# Start time
 		start = time.time()
@@ -72,7 +73,6 @@ if __name__ == "__main__":
 
 			# Get the depth image from the capture
 			depth_image_handle = pyK4A.capture_get_depth_image()
-
 
 		elif mode == 'record':
 
@@ -114,10 +114,10 @@ if __name__ == "__main__":
 
 				# 顯示3維關節座標在輸出影像上
 				# util.show_coordinate_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
-				# 顯示關節角度在輸出影像上
-				util.show_angel_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
+				# 計算關節角度並輸出在影像上
+				# angel = util.show_angel_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
 				# 計算動作完成次數
-				util.cal_exercise('Lift_Dumbbells')
+				util.cal_exercise()
 
 
 			# End time
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 			cv2.putText(util.combined_image, 'FPS:{:.1f}'.format(1/(end-start)), (15, 40), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
 
 			# Overlay body segmentation on depth image
-			cv2.imshow('Segmented Depth Image',util.combined_image)
+			cv2.imshow('Segmented Depth Image', util.combined_image)
 			k = cv2.waitKey(1)
 
 			# Release the image
@@ -139,7 +139,7 @@ if __name__ == "__main__":
 		if k==27:    # Esc key to stop
 			break
 		elif k == ord('q'):
-			cv2.imwrite('outputImage.jpg',combined_image)
+			cv2.imwrite('outputImage.jpg', util.combined_image)
 
 	if mode == 'camera':
 		pyK4A.device_stop_cameras()
