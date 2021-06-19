@@ -5,6 +5,7 @@ import numpy as np
 from pyKinectAzure.pyKinectAzure import pyKinectAzure, _k4a
 from kinectBodyTracker import kinectBodyTracker, _k4abt
 import cv2
+import time
 
 from utils import Util
 
@@ -38,6 +39,8 @@ if __name__ == "__main__":
 
 	k = 0
 	while True:
+		# Start time
+		start = time.time()
 		# Get capture
 		pyK4A.device_get_capture()
 
@@ -72,15 +75,24 @@ if __name__ == "__main__":
 
 				util = Util(skeleton2D, skeleton3D, combined_image)
 				# 顯示3維關節座標在輸出影像上
-				util.show_coordinate_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
+				# util.show_coordinate_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
 				# 顯示關節角度在輸出影像上
 				util.show_angel_on_2Dimage(['SHOULDER_RIGHT', 'ELBOW_RIGHT', 'WRIST_RIGHT'])	
+				# 顯示3維關節座標在輸出影像上
+				# util.show_coordinate_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	
+				# 顯示關節角度在輸出影像上
+				util.show_angel_on_2Dimage(['SHOULDER_LEFT', 'ELBOW_LEFT', 'WRIST_LEFT'])	
 
 				combined_image = util.combined_image
 
 			# Overlay body segmentation on depth image
 			cv2.imshow('Segmented Depth Image',combined_image)
 			k = cv2.waitKey(1)
+
+			# End time
+			end = time.time()
+			# FPS
+			print('FPS:{:.1f}'.format(1/(end-start)))
 
 			# Release the image
 			pyK4A.image_release(depth_image_handle)
