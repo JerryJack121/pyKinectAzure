@@ -22,11 +22,10 @@ bodyTrackingModulePath = 'C:\\Program Files\\Azure Kinect Body Tracking SDK\\sdk
 mode = 'Camera'	# mode(Camera, Record)
 exercise_mode = 'Lift_Dumbbells'	# exercise_mode(None, Lift_Dumbbells, Stand_Sit)
 side = 'Left'	# 只有在當運動有分左右半身時有效 side(None, Lift, Right)
+_time = 5 	# 遊戲時間(second)
 
 # 系統參數
 k = 0
-game_start = False
-game_stop = False
 
 if __name__ == "__main__":
 
@@ -67,7 +66,7 @@ if __name__ == "__main__":
 
 
 	# 初始化工具
-	util = Util(width, height, exercise_mode, side)		
+	util = Util(width, height, _time, exercise_mode, side)		# (寬，高，遊戲時間，運動種類，左/右半身)
 
 	while True:
 		# Frame start time
@@ -115,23 +114,27 @@ if __name__ == "__main__":
 
 
 			# 偵測到人後倒數3秒鐘進入遊戲
-			if not game_start:
+			if not util.game_start:
 				if len(pyK4A.body_tracker.bodiesNow) != 0:					
-					game_start = util.game_ready()
+					util.game_ready()
 
-			if  game_start:
-				# Draw the skeleton
-				for body in pyK4A.body_tracker.bodiesNow:	# 遍覽畫面中出現的目標
-					skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
-					util.combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, util.combined_image)
-					# 取得3維關節座標
-					skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)						
-					# 更新骨架資訊
-					util.update(skeleton2D, skeleton3D)
-					# 計算動作完成次數
-					game_stop = util.cal_exercise()
-					if game_stop:
-						util.put_text_in_center((int(util.width/2), int(util.height/2)), 'Time\'s up!', 1.5, (0, 0, 255), 2)
+			else:		
+				# 於畫面中顯示遊戲狀態  
+				util.show_info()		
+				if not util.game_stop:
+					# Draw the skeleton
+					for body in pyK4A.body_tracker.bodiesNow:
+						skeleton2D = pyK4A.bodyTracker_project_skeleton(body.skeleton)
+						util.combined_image = pyK4A.body_tracker.draw2DSkeleton(skeleton2D, body.id, util.combined_image)
+						# 取得3維關節座標
+						skeleton3D = pyK4A.bodyTracker_3Dskeleton(body.skeleton)						
+						# 更新骨架資訊
+						util.update(skeleton2D, skeleton3D)
+						# 計算動作完成次數
+						util.cal_exercise()
+						break # 只計算畫面中的其中一人					
+				else:
+					util.put_text_in_center((int(util.width/2), int(util.height/2)), 'Time\'s up!', 1.5, (0, 0, 255), 2)
 
 
 			# Frame end time
